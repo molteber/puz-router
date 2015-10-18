@@ -1,0 +1,17 @@
+{
+    "name": "puz/router",
+    "description": "Simple router for small systems",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Morten Mehus",
+            "email": "morten.mehus@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Puz\\Router\\": "src/"
+        }
+    }
+}
