@@ -1,0 +1,7 @@
+{
+    "packages": {
+        "puz/router": {
+            "dev-master": { @composer.json }
+        }
+    }
+}
