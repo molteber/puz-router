@@ -73,7 +73,7 @@ The router can be used in two different ways. **Globally** or **separately**.
 A **global route collection** means that every route you add to the global collection, will be available everywhere. You use this by using the static methods when adding new routes.  
 Example: `Router::add("get", "/hello-world", "Hello world");`
 
-A **separate route collection** means that you can restrict some routes based on which routes you want to be available. You use this by using the direct object when adding new routes. This can be usefull if you have versioning on your API (if you use this on your API routes).
+A **separate route collection** means that you can restrict some routes based on which routes you want to be available. You use this by using the direct object when adding new routes. This can be usefull if you have versioning on your API (if you use this on your API routes).  
 Example: `$router->add("get", /hello-world", "Hello world");`
 
 If you want to make a separate route collection, you start of by creating a object:
@@ -107,4 +107,3 @@ If you want to make a separate route collection, you start of by creating a obje
     } catch(\Exception $e) {
         // Unwanted stuff happened, should probably log this
     }
-    
