@@ -14,7 +14,7 @@
             "Puz\\Router\\": "src/"
         }
     },
-    "version": "dev-master",
+    "version": "master",
     "dist": {
         "type": "zip",
         "url": "http://celia.mij.no/puz/Router/repository/archive.zip"
