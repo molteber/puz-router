@@ -220,10 +220,47 @@ class Route
 
     public function call(array $args = [])
     {
-        if (is_callable($this->callback)) {
-            return call_user_func_array($this->callback, $args);
+        $callargs = $this->prepareParameters($args);
+        // Validate regexes
+        if (!$this->validateRegex($callargs['assoc'])) {
+            throw new \Exception("RegEx match failed");
         } else {
-            throw new \Exception("Uncallable callback");
+            if (is_callable($this->callback)) {
+                return call_user_func_array($this->callback, $callargs['num']);
+            } else {
+                throw new \Exception("Uncallable callback");
+            }
+        }
+    }
+
+    private function prepareParameters(array $args = [])
+    {
+        if ($this->hasParams()) {
+            $params = $this->params;
+            $checkparams = [];
+            $assoc = [];
+            $type = null;
+            foreach ($args as $key => $arg) {
+                if (is_int($key) && $type !== "string") {
+                    $type = "int";
+                    $checkparams[$key] = $arg;
+                    $assoc[$params[$key]] = $arg;
+                } elseif (is_string($key) && $type !== "int") {
+                    $type = "string";
+                    if (in_array($key, $params)) {
+                        $index = array_keys($params, $key)[0];
+                        $checkparams[$index] = $arg;
+                        $assoc[$key] = $arg;
+                    } else {
+                        throw new \Exception("Invalid call argument #1");
+                    }
+                } else {
+                    throw new \Exception("Invalid call argument #2");
+                }
+            }
+            return ['num' => $checkparams, 'assoc' => $assoc];
+        } else {
+            return ['num' => [], 'assoc' => []];
         }
     }
 }
