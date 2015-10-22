@@ -1,0 +1,23 @@
+{
+    "name": "puz/router",
+    "description": "Simple router for small systems",
+    "license": "GNU General Public License v2",
+    "authors": [
+        {
+            "name": "Morten Mehus",
+            "email": "me@molty.no"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Puz\\Router\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.3"
+    },
+    "keywords": ["router", "route", "routing", "puz"],
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*"
+    }
+}
