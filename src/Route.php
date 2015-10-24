@@ -36,7 +36,7 @@ class Route
         // Scan for parameters @TODO
         $parameterchar = Router::getParameterCharacter();
 
-        if (preg_match_all("/(:([a-z]+))/", $url, $matches)) {
+        if (preg_match_all("/(".preg_quote($parameterchar)."([a-z]+))/", $url, $matches)) {
             $this->params = $matches[2];
         } else {
             $this->params = [];
