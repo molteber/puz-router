@@ -1,14 +1,19 @@
 <?php
 use Puz\Router\Router;
+use Puz\Router\Route;
 
+use Puz\Router\Exceptions\IncorrectRouterCreationException;
+use Puz\Router\Exceptions\InvalidRouterNameException;
+use Puz\Router\Exceptions\RouternameAlreadyExistsException;
 class RouterTest extends PHPUnit_Framework_TestCase
 {
+    /*
     public function setup() {
         $this->global = new Router(true);
         $this->custom = new Router("custom");
         $this->hello = new Router("hello");
-    }
-
+    }*/
+/*
     public function testStaticCreation()
     {
         try {
@@ -46,7 +51,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
             $router = false;
         }
         $this->assertFalse($router, "The router should not create duplicates of same scope name.");
-    }
+    }*/
 
     public function testDirectCreation()
     {
@@ -71,8 +76,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         }
         $this->assertFalse($router, "'global' is a reserved router name.");
 
-        $router = new Router(true);
-        $this->assertEquals($router->getScope(), "global");
+        $router = Router::getInstance("global");
+        $this->assertEquals($router->getScope(), "global", "Scope should be returned as 'global'");
 
         $router = new Router("hello-world");
         $this->assertEquals($router->getScope(), "hello-world");
@@ -87,6 +92,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     public function testBuiltinRouteCreation()
     {
+        try {
+            $this->global = new Router(true);
+        } catch (RouterNameAlreadyExistsException $e) {
+            $this->global = Router::getInstance('global');
+        }
+        $this->custom = new Router("custom");
+        $this->hello = new Router("hello");
+
         $this->global->add("GET", "/", "callback");
         $this->global->get("/1", "callback");
         $this->global->post("/2", "callback");
@@ -107,18 +120,18 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         // Get the scopes
         $scopes = Router::getScopes();
-        $this->assertIn("global", $scopes);
+        $this->assertContains("global", $scopes);
         $this->assertContains("custom", $scopes, null, true);
         $this->assertContains("hello-world", $scopes, null, true);
 
         // Check the global scope routes
-        $global = Router::getScope("global");
+        $global = Router::getInstance("global");
         $routes = $global->getRoutes();
         $this->assertNotEmpty($routes, "The global route scope should have some routes by now.");
 
         // Check that they are all a instance of Route
         foreach($routes as $route) {
-            $this->assertInstanceOf('Route', $route);
+            $this->assertInstanceOf('Puz\Router\Route', $route);
         }
 
         $one = $routes[0];
@@ -127,7 +140,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($one->hasCallback());
 
         $two = $routes[1];
-        $this->assertEquals($two->getUrl(), "/1");
+        $this->assertEquals("/1", $two->getUrl());
         $this->assertEquals($two->getMethod(), "get");
         $this->assertTrue($two->hasCallback());
 
@@ -147,13 +160,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($five->hasCallback());
 
         // Check the 'custom' scope routes
-        $custom = Router::getScope("custom");
+        $custom = Router::getInstance("custom");
         $routes = $custom->getRoutes();
         $this->assertNotEmpty($routes, "The 'custom' route scope should have some routes by now.");
 
         // Check that they are all a instance of Route
         foreach($routes as $route) {
-            $this->assertInstanceOf('Route', $route);
+            $this->assertInstanceOf('Puz\Router\Route', $route);
         }
 
         $one = $routes[0];
@@ -182,13 +195,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($five->hasCallback());
 
         // Check the 'hello-world' scope routes
-        $hello = Router::getScope("global");
+        $hello = Router::getInstance("hello");
         $routes = $hello->getRoutes();
         $this->assertNotEmpty($routes, "The 'hello-world' route scope should have some routes by now.");
 
         // Check that they are all a instance of Route
         foreach($routes as $route) {
-            $this->assertInstanceOf('Route', $route);
+            $this->assertInstanceOf('Puz\Router\Route', $route);
         }
 
         $one = $routes[0];
