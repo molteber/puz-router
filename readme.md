@@ -1,33 +1,32 @@
 # Puz Router
 ###### The most fluffiest PHP router you have ever used
 
+## Currently not working! Just tried putting it on packagist!
+
 ## Installation
-You will need the following information in your `composer.json` file.
-
-    {
-        "repositories": [
-            {
-                "type": "git",
-                "url": "http://celia.mij.no/puz/Router.git"
-            }
-        ],
-        "require": {
-            "puz/router": "dev-master"
-        },
-        "minimum-stability": "dev",
-    }
-
-When ready, run `composer install` and watch it being downloaded to your vendor folder.  
-
-If your project is a git repository as well, please add `/vendor` to your `.gitignore` file so you won't be storing unwanted files and folders on your repository. If you need to have the vendor folder, which may be because you don't have access to run `composer install` on the production server, please read the note underneath if you run into problems.
-
-**NOTE** Because this is currently a git repository, it will also download the `.git` folder. If it causes problems for you, I believe you can just go ahead and delete it.
+To use it with composer, simply type `composer require puz/router` or add the following to your `composer.json` file.
+```json
+{
+  "require": {
+    "puz/router": "0.*"
+  }
+}
+```
+If you want to use the latest version, you need to require the dev version, like this:
+```json
+{
+  "require": {
+    "puz/router": "dev-master"
+  },
+  "minimum-stability": "dev"
+}
+```
 
 ## How-To
 ### Create a route
 There are multiple ways to create a single route. **Note that a single route won't be automaticly called, only the Router does that.**
 Here are some examples on how to create the route:
-
+```php
     <?php
     require "vendor/autoload.php";
     use Puz\Router\Route;
@@ -64,7 +63,7 @@ Here are some examples on how to create the route:
     call_user_func_array($route->getCallback(), []);
     // Instead we would recommend you to use the `call` method.
     $route->call([]);
-
+```
 ### Create a router
 ###### A collection of routes
 A router is as the subheading says, a collection of routes.
@@ -77,7 +76,7 @@ A **separate route collection** means that you can restrict some routes based on
 Example: `$router->add("get", /hello-world", "Hello world");`
 
 If you want to make a separate route collection, you start of by creating a object:
-
+```php
     // Remember to include the autoloader
     use Puz\Router\Router;
 
@@ -107,3 +106,4 @@ If you want to make a separate route collection, you start of by creating a obje
     } catch(\Exception $e) {
         // Unwanted stuff happened, should probably log this
     }
+```

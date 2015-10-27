@@ -26,6 +26,10 @@ class Route
 
         return $this; // Chaining
     }
+    public function isValid()
+    {
+        return !empty($this->method) && !empty($this->url) && !empty($this->callback);
+    }
 
     public function setUrl($url)
     {
@@ -36,7 +40,7 @@ class Route
         // Scan for parameters @TODO
         $parameterchar = Router::getParameterCharacter();
 
-        if (preg_match_all("/(:([a-z]+))/", $url, $matches)) {
+        if (preg_match_all("/(".preg_quote($parameterchar)."([a-z]+))/", $url, $matches)) {
             $this->params = $matches[2];
         } else {
             $this->params = [];
@@ -65,6 +69,15 @@ class Route
             };
         }
         $this->callback = $callback;
+    }
+
+    public function getRegex($key)
+    {
+        if (isset($this->data['regex'][$key])) {
+            return $this->data['regex'][$key];
+        } else {
+            return null;
+        }
     }
 
     public function hasMethod($method)
@@ -148,14 +161,21 @@ class Route
             } else {
                 throw new \Exception("Eeeeh wut?");
             }
+        } elseif(strpos($name, "get") === 0) {
+            $name = explode("get", $name, 2);
+            $name = strtolower($name[1]);
+
+            return $this->{$name};
         } elseif (strpos($name, "has") === 0) {
             $name = explode("has", $name, 2);
             $name = strtolower($name[1]);
 
             if (in_array($name, $allowedMethods)) {
                 return $this->hasMethod($name);
-            } elseif ($name == "params") {
-                return !empty($this->params);
+            } elseif (isset($this->data[$name])) {
+                return !empty($this->data[$name]);
+            } elseif (isset($this->{$name})) {
+                return !empty($this->{$name});
             }
         }
         return $this; // Chaining
@@ -169,13 +189,16 @@ class Route
         if (in_array($name, $allowedMethods)) {
             $route->setMethod($name);
             if (!isset($arguments[0]) || empty($arguments[0])) {
-                throw InvalidRouteCreationException("Missing static call parameter value.");
+                throw new InvalidRouteCreationException("Missing static call parameter value.");
             } else {
                 $route->setUrl($arguments[0]);
+                if (isset($arguments[1])) {
+                    $route->setCallback($arguments[1]);
+                }
             }
         } elseif (in_array($name, ['method', 'callback', 'url'])) {
             if (!isset($arguments[0]) || empty($arguments[0])) {
-                throw InvalidRouteCreationException("Missing static call parameter value.");
+                throw new InvalidRouteCreationException("Missing static call parameter value.");
             } else {
                 call_user_func_array([$route, 'set'.ucfirst($name)], $arguments);
             }
@@ -218,19 +241,58 @@ class Route
         return $method . " ". $url;
     }
 
-    public function call(array $args = [])
+    public function call()
     {
+        $arguments = func_get_args();
+
+        if (count($arguments) > 0) {
+            if (is_array($arguments[0])) {
+                $args = $arguments[0];
+                $querystring = $arguments[1];
+            }
+            else {
+                $querystring = array_pop($arguments);
+                $args = $arguments;
+
+                if (!is_array($querystring)) {
+                    $args[] = $querystring;
+                    $querystring = [];
+                }
+            }
+        }
+
         $callargs = $this->prepareParameters($args);
         // Validate regexes
         if (!$this->validateRegex($callargs['assoc'])) {
             throw new \Exception("RegEx match failed");
         } else {
             if (is_callable($this->callback)) {
-                return call_user_func_array($this->callback, $callargs['num']);
+                $returned = call_user_func_array($this->callback, array_merge($callargs['num'], [$querystring]));
+                if (is_array($returned) || is_object($returned)) {
+                    header("Content-type: application/json; charset=utf-8");
+                    echo json_encode($returned, JSON_PRETTY_PRINT);
+                }
+                return;
             } else {
                 throw new \Exception("Uncallable callback");
             }
         }
+    }
+
+    public function validateRegex(array $args = [])
+    {
+        $params = $this->getParams();
+        foreach ($params as $param) {
+            if (!isset($args[$param])) return false;
+            else {
+                $regex = $this->getRegex($param);
+                if (!is_null($regex)) {
+                    $match = preg_match("/^".$regex."$/", $args[$param]);
+                    if ($match !== 1) return false;
+                }
+            }
+        }
+        return true;
     }
 
     private function prepareParameters(array $args = [])
@@ -258,6 +320,9 @@ class Route
                     throw new \Exception("Invalid call argument #2");
                 }
             }
+
+            ksort($checkparams);
+
             return ['num' => $checkparams, 'assoc' => $assoc];
         } else {
             return ['num' => [], 'assoc' => []];

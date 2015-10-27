@@ -1,22 +1,23 @@
 {
     "name": "puz/router",
     "description": "Simple router for small systems",
-    "license": "MIT",
+    "license": "GNU General Public License v2",
     "authors": [
         {
             "name": "Morten Mehus",
-            "email": "morten.mehus@gmail.com"
+            "email": "me@molty.no"
         }
     ],
-    "require": {},
     "autoload": {
         "psr-4": {
             "Puz\\Router\\": "src/"
         }
     },
-    "version": "master",
-    "dist": {
-        "type": "zip",
-        "url": "http://celia.mij.no/puz/Router/repository/archive.zip"
+    "require": {
+        "php": ">=5.3"
+    },
+    "keywords": ["router", "route", "routing", "puz"],
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*"
     }
 }
