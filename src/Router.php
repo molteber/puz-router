@@ -4,23 +4,28 @@ namespace Puz\Router;
 
 use Puz\Router\Contracts\ValidatorContract;
 use Puz\Router\Exceptions\RouteNotFoundException;
+use Puz\Router\Validators\MethodValidator;
+use Puz\Router\Validators\UrlValidator;
 
 /**
- * @method Route get(string|null $url = null, callable|null $callback = null)
- * @method Route head(string|null $url = null, callable|null $callback = null)
- * @method Route post(string|null $url = null, callable|null $callback = null)
- * @method Route put(string|null $url = null, callable|null $callback = null)
- * @method Route patch(string|null $url = null, callable|null $callback = null)
- * @method Route delete(string|null $url = null, callable|null $callback = null)
- * @method Route method(string|array $methods)
+ * @method Route get(string | null $url = null, callable | null $callback = null)
+ * @method Route head(string | null $url = null, callable | null $callback = null)
+ * @method Route post(string | null $url = null, callable | null $callback = null)
+ * @method Route put(string | null $url = null, callable | null $callback = null)
+ * @method Route patch(string | null $url = null, callable | null $callback = null)
+ * @method Route delete(string | null $url = null, callable | null $callback = null)
+ * @method Route method(string | array $methods)
  */
 class Router
 {
+    /** @var string[] */
+    protected static $validators = [
+        MethodValidator::class,
+        UrlValidator::class,
+    ];
+
     /** @var \Puz\Router\Route[] */
     protected $routes = [];
-
-    /** @var string[] */
-    protected $validators = [];
 
     public function getRoutes()
     {
@@ -29,8 +34,9 @@ class Router
 
     /**
      * @param string $validator
+     * @param bool   $reset If true, it will clear the list of validators before adding the new one.
      */
-    public function registerValidator($validator)
+    public static function registerValidator($validator, $reset = false)
     {
         if (!is_string($validator)) {
             throw new \InvalidArgumentException("Expected type of string, got " . gettype($validator));
@@ -44,7 +50,11 @@ class Router
             throw new \InvalidArgumentException("Expected {$validator} to be a valid class name which implements " . ValidatorContract::class);
         }
 
-        $this->validators[] = $validator;
+        if ($reset === true) {
+            self::$validators = [];
+        }
+
+        self::$validators[] = $validator;
     }
 
     /**
@@ -64,7 +74,7 @@ class Router
         // Initialise all validators
         $validators = array_map(function ($validator) {
             return new $validator;
-        }, $this->validators);
+        }, self::$validators);
 
         $data = [
             'method' => $request['method'],
@@ -75,8 +85,9 @@ class Router
 
             /** @var \Puz\Router\Contracts\ValidatorContract $validator */
             foreach ($validators as $validator) {
-                if ($validator->handle($route, $data) !== true)
+                if ($validator->handle($route, $data) !== true) {
                     continue 2;
+                }
             }
 
             return $route->call(...$route->getUrlParameterData($data['url']));

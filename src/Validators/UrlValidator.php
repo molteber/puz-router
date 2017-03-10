@@ -24,7 +24,7 @@ class UrlValidator implements ValidatorContract
 
         // See if regex match
         $routeRegexUrl = $route->getRegexUrl();
-        dump($routeRegexUrl);
+
         if (preg_match("/^".$routeRegexUrl."$/", $url))
             return true;
 
