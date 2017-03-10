@@ -87,8 +87,8 @@ This router will not auto-detect your request method nor requested uri, so you h
 <?php
 // ...
 $router->run([
-    $_SERVER['REQUEST_METHOD'],
-    $_SERVER['REQUEST_URI']
+    'method' => $_SERVER['REQUEST_METHOD'],
+    'url' => $_SERVER['REQUEST_URI']
 ]);
 ```
 This also opens up for a easy way to debug or do it just the way you want it!
