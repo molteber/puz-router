@@ -10,6 +10,8 @@ use Puz\Router\Exceptions\RouteMethodDoesNotExist;
  */
 trait RouteUrlTrait
 {
+    protected static $parameterRegex = "([a-zA-Z0-9-._]+)";
+
     /** @var string  */
     protected static $parameterCharacter = ":";
 
@@ -38,6 +40,54 @@ trait RouteUrlTrait
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    public function getRegexUrl()
+    {
+        $params = array_map(function ($param) {
+            return self::$parameterCharacter . $param['param'];
+        }, $this->params);
+
+        $regex = array_map(function ($param) {
+            return $param['regex'];
+        }, $this->params);
+
+        $paramAsRegex = array_combine($params, $regex);
+
+        $charQuote = preg_quote(self::$parameterCharacter, "/");
+        $url = preg_quote($this->url, "/");
+
+        // If the character was escaped, unescape it again
+        $url = strtr($url, [$charQuote => self::$parameterCharacter]);
+
+        return strtr($url, $paramAsRegex);
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return array
+     */
+    public function getUrlParameterData($url)
+    {
+        $data = [];
+
+        if (!empty($this->params)) {
+            $url = rtrim($url, "/");
+            $routeRegexUrl = $this->getRegexUrl();
+            if (preg_match("/^" . $routeRegexUrl . "$/", $url, $data)) {
+                array_splice($data, 0,1);
+            }
+        }
+        return $data;
+    }
+
     protected function scanForParameters()
     {
         if (preg_match_all("/(" . preg_quote(self::$parameterCharacter) . "([a-z]+))/", $this->url, $matches)) {
@@ -45,7 +95,8 @@ trait RouteUrlTrait
             $params = array_map(function ($param) {
                 return [
                     'param' => $param,
-                    'required' => true
+                    'required' => true,
+                    'regex' => self::$parameterRegex
                 ];
             }, $matches[2]);
             $this->params = $params;

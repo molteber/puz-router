@@ -48,23 +48,27 @@ class Router
     }
 
     /**
-     * @param string $method
-     * @param string $url
+     * @param array $request
      *
      * @return mixed
      *
      * @throws \Puz\Router\Exceptions\RouteNotFoundException
      */
-    public function run($method, $url)
+    public function run(array $request)
     {
+        // Validate request dependencies
+        if (!isset($request['method'], $request['url'])) {
+            throw new \InvalidArgumentException("Missing critical information for router. We need the indexes 'method' and 'url'");
+        }
+
         // Initialise all validators
         $validators = array_map(function ($validator) {
             return new $validator;
         }, $this->validators);
 
         $data = [
-            'method' => $method,
-            'url' => $url
+            'method' => $request['method'],
+            'url' => rtrim($request['url'], "/"),
         ];
 
         foreach ($this->routes as $route) {
@@ -75,10 +79,10 @@ class Router
                     continue 2;
             }
 
-            return $route->call();
+            return $route->call(...$route->getUrlParameterData($data['url']));
         }
 
-        throw new RouteNotFoundException("No route found on given url: " . $url);
+        throw new RouteNotFoundException("No route found on given url: " . $data['url']);
     }
 
     public function __call($method, $arguments)
