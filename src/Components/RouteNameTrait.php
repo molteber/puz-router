@@ -2,11 +2,6 @@
 
 namespace Puz\Router\Components;
 
-/**
- * Makes it possible to name the route
- *
- * @property string name
- */
 trait RouteNameTrait
 {
     /** @var  string */

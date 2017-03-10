@@ -4,10 +4,6 @@ namespace Puz\Router\Components;
 
 use Puz\Router\Exceptions\RouteMethodDoesNotExist;
 
-/**
- * @property string url
- * @property array  params
- */
 trait RouteUrlTrait
 {
     protected static $parameterRegex = "([a-zA-Z0-9-._]+)";

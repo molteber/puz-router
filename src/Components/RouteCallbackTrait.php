@@ -5,10 +5,6 @@ namespace Puz\Router\Components;
 use Puz\Router\Exceptions\InvalidRouteCallbackException;
 use Puz\Router\Exceptions\RouteCallbackImplementationMissingException;
 
-/**
- * @property callable callback
- * @property string   typeOfCallback
- */
 trait RouteCallbackTrait
 {
     protected $callback;
@@ -72,7 +68,7 @@ trait RouteCallbackTrait
         return call_user_func_array($callback, $arguments);
     }
 
-    protected function performCallString($callback, $arguments)
+    protected function performCallString($callback)
     {
         return $callback;
     }
