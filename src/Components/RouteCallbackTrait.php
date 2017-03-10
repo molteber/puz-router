@@ -70,6 +70,6 @@ trait RouteCallbackTrait
 
     protected function performCallString($callback)
     {
-        return $callback;
+        echo $callback;
     }
 }

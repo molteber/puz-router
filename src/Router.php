@@ -60,7 +60,7 @@ class Router
     /**
      * @param array $request
      *
-     * @return mixed
+     * @return void
      *
      * @throws \Puz\Router\Exceptions\RouteNotFoundException
      */
@@ -90,7 +90,8 @@ class Router
                 }
             }
 
-            return $route->call(...$route->getUrlParameterData($data['url']));
+            $route->call(...$route->getUrlParameterData($data['url']));
+            return;
         }
 
         throw new RouteNotFoundException("No route found on given url: " . $data['url']);
