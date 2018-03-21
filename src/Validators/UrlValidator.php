@@ -15,8 +15,8 @@ class UrlValidator implements ValidatorContract
      */
     public function handle(Route $route, array $data)
     {
-        $routeUrl = rtrim($route->getUrl(), "/");
-        $url = rtrim($data['url'], "/");
+        $routeUrl = trim($route->getUrl(), "/");
+        $url = trim($data['url'], "/");
 
         // See if exact match
         if ($routeUrl == $url)
@@ -28,6 +28,6 @@ class UrlValidator implements ValidatorContract
         if (preg_match("/^".$routeRegexUrl."$/", $url))
             return true;
 
-        return;
+        return false;
     }
 }

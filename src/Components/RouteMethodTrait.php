@@ -125,7 +125,7 @@ trait RouteMethodTrait
 
         $this->methods = $methods;
 
-        if ($url) {
+        if (!is_null($url)) {
             if (method_exists($this, 'url')) {
                 call_user_func_array([$this, 'url'], [$url]);
             } else {
