@@ -1,11 +1,11 @@
 {
     "name": "puz/router",
     "description": "Simple router for small systems",
-    "license": "GNU General Public License v2",
+    "license": "GPL-2.0-only",
     "authors": [
         {
             "name": "Morten Mehus",
-            "email": "me@molty.no"
+            "email": "contact@mortenmehus.no"
         }
     ],
     "autoload": {
