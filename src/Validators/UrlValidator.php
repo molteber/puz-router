@@ -16,7 +16,7 @@ class UrlValidator implements ValidatorContract
     public function handle(Route $route, array $data)
     {
         $routeUrl = trim($route->getUrl(), "/");
-        $url = trim($data['url'], "/");
+        $url = "/" . trim($data['url'], "/");
 
         // See if exact match
         if ($routeUrl == $url)
